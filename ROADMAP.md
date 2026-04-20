@@ -1,28 +1,25 @@
-## Phase 1: Core
+# Vellum Roadmap
 
-- [ ] Tauri v2 + Vite + Tailwind setup.
-- [ ] Font configuration (Geist Sans, IBM Plex Mono).
-- [ ] .env file parser in Rust.
+## Phase 1: Foundation & Discovery (Current)
 
-## Phase 2: Scanning & UI
+- [x] Project scaffolding (Tauri v2 + React + Tailwind v4).
+- [x] Basic directory scanning via Rust bridge.
+- [ ] UI: Dashboard layout with IBM Plex Mono for data visualization.
+- [ ] Engine: Content parsing to extract Key=Value pairs from files.
 
-- [ ] Recursive directory scanning command.
-- [ ] Navigation sidebar and indexed project list.
-- [ ] Slate-950 color palette integration.
+## Phase 2: The Vault (Persistence & Security)
 
-## Phase 3: Validation
+- [ ] Local Database: Implementation of SQLite/JSON storage for snapshots.
+- [ ] Encryption Layer: AES-GCM for sensitive data at rest in the Vault.
+- [ ] Feature: "Snapshot" - Save the current state of all environments in a project.
 
-- [ ] .env vs .env.example parity comparer.
-- [ ] Syntax validation and duplicate detection system.
-- [ ] Global variable search.
+## Phase 3: Synchronization & Portability
 
-## Phase 4: Utilities
+- [ ] Feature: "Export Bundle" - Generate a single encrypted `.vlm` file.
+- [ ] Feature: "Import Bundle" - Reconstruct `.env` files on a new machine.
+- [ ] Audit Tool: Compare local files vs. Vault snapshots to detect drift.
 
-- [ ] Secrets generator in Rust.
-- [ ] Visual obfuscation system (Blur/Hover).
-- [ ] Direct edit and save to disk functionality.
+## Phase 4: Refinement
 
-## Phase 5: Distribution
-
-- [ ] Optimized binary builds (Windows, macOS, Linux).
-- [ ] Open Source contribution documentation.
+- [ ] Dynamic Blur: Toggle visibility for sensitive keys.
+- [ ] .env.example Watcher: Alert when keys in example don't match local files.
