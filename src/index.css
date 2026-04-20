@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@import "@fontsource/geist-sans";
+@import "@fontsource/ibm-plex-mono";
+@import "@fontsource/source-serif-4";
+
+@theme {
+  --font-sans: "Geist Sans", ui-sans-serif, system-ui;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-serif: "Source Serif 4", ui-serif, Georgia;
+  --color-slate-950: #020617;
+}
+
+:root {
+  font-family: var(--font-sans);
+  background-color: var(--color-slate-950);
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
