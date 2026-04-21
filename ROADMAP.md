@@ -3,40 +3,43 @@
 ## Phase 1: Foundation & Discovery
 
 - [x] Project scaffolding (Tauri v2 + React + Tailwind v4).
-- [x] Basic directory scanning via Rust bridge.
-- [x] Engine: Content parsing with Key=Value extraction, multiline support, and sensitivity heuristics.
+- [x] Directory scanning via Rust bridge.
+- [x] Content parsing: Key=Value extraction, multiline support, sensitivity heuristics.
 - [x] UI: Dashboard layout with scan results, audit cards, and obfuscation toggles.
 - [x] Native directory picker via `tauri-plugin-dialog`.
-- [x] Unified `scan_directory` command: single IPC call scans and parses all .env files at once.
+- [x] Unified `scan_directory` command: single IPC call scans and parses all .env files.
+- [x] Local auth module with Argon2 key derivation and in-memory session.
+- [x] AES-GCM encrypted local vault with project CRUD and role-based members.
 
-## Phase 2: Identity & Access Control (Current)
+## Phase 2: API & Remote Vault (Current)
 
-- [ ] Auth Module: Local registration and login system.
-- [ ] Key Derivation: Replace raw passphrase with Argon2-based key derivation from master password.
-- [ ] Session Management: Vault key held in memory during app lifecycle. Cleared on close.
-- [ ] User Profile: Encrypted local storage for user identity.
-- [ ] Ownership: Every project linked to its creator via `owner_id`.
-- [ ] Roles: `owner`, `editor`, `viewer` per project member.
-- [ ] UI: Login/Register screen as app entry point. Dashboard gated behind auth.
+- [ ] Axum REST API: project scaffolding, routing, error handling.
+- [ ] Neon PostgreSQL: schema design and migrations (users, projects, members, entries).
+- [ ] Auth endpoints: register, login, JWT issuance and validation.
+- [ ] Project endpoints: create, list (owned + shared), update, delete.
+- [ ] Membership endpoints: invite user by username with role, remove member, update role.
+- [ ] Entry endpoints: store and retrieve E2E encrypted variable blobs.
+- [ ] Tauri client: replace local vault calls with API requests. Keep scanner local.
+- [ ] Role enforcement: server-side validation on every mutating endpoint.
 
-## Phase 3: The Vault (Persistence & Security)
+## Phase 3: Collaboration & Access Control
 
-- [x] Encryption Layer: AES-GCM for sensitive data at rest in the Vault.
-- [x] Project struct with multi-file support and vault persistence.
-- [ ] Feature: "Snapshot" — Save the current state of all environments in a project.
-- [ ] Project Dashboard: List owned and shared projects with role indicators.
-- [ ] Selective Sync: Per-variable and per-file checkboxes before committing to the Vault.
+- [ ] Invitation flow: owner invites collaborator by username, assigns role.
+- [ ] Project dashboard: list owned and shared projects with role indicators.
+- [ ] Editor capabilities: modify variables, add/remove env files within a project.
+- [ ] Viewer restrictions: read-only access, values always obfuscated, no export.
+- [ ] Ownership transfer: owner can promote an editor to owner.
 
-## Phase 4: Synchronization & Portability
+## Phase 4: Auditing & Sync
 
-- [ ] Feature: "Export Bundle" — Generate a single encrypted `.vlm` file with role metadata attached.
-- [ ] Feature: "Import Bundle" — Reconstruct `.env` files on a new machine and register as project member.
-- [ ] Invitation Flow: Owner exports a Bundle with a target role; recipient imports and gains access.
-- [ ] Audit Tool: Compare local files vs. Vault snapshots to detect drift.
+- [ ] Snapshot: save the current state of all environments in a project.
+- [ ] Drift detection: compare local .env files against the remote vault.
+- [ ] .env.example watcher: alert when keys in example don't match local files.
+- [ ] Selective sync: per-variable and per-file checkboxes before pushing to the vault.
 
 ## Phase 5: Refinement
 
-- [ ] OS Keychain Integration: Store session tokens in Windows Credential Manager / macOS Keychain.
-- [ ] .env.example Watcher: Alert when keys in example don't match local files.
-- [ ] Generator: Cryptographic string creation for new variables inline.
-- [ ] Granular Permissions: Per-variable visibility rules for viewer role.
+- [ ] Offline mode: local cache for read access when the API is unreachable.
+- [ ] Generator: cryptographic string creation for new variables inline.
+- [ ] Granular permissions: per-variable visibility rules for viewer role.
+- [ ] Activity log: track who changed what and when within a project.
