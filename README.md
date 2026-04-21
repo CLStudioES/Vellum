@@ -39,6 +39,30 @@
 - **Persistence:** Neon PostgreSQL as the single source of truth. The Tauri client may cache data locally for offline access in future iterations.
 - **Security:** E2E encryption (AES-GCM), Argon2 password hashing, JWT auth, role-based access control enforced at the API level.
 
-## 5. License
+## 5. Getting Started
+
+```bash
+# 1. Clone and install frontend dependencies
+bun install
+
+# 2. Set up the API environment
+cp vellum-api/.env.example vellum-api/.env
+# Edit vellum-api/.env with your Neon connection string and JWT secret
+
+# 3. Run the SQL migration in your Neon console
+# Paste the contents of vellum-api/migrations/001_init.sql
+
+# 4. Start the API (terminal 1)
+cd vellum-api && cargo run
+
+# 5. Start the desktop client (terminal 2)
+bun run tauri dev
+
+# Test credentials (already seeded in Neon)
+# Username: test
+# Password: testtest123
+```
+
+## 6. License
 
 Distributed under the GPL-3.0 License. See `LICENSE` for more information.

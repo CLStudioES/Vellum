@@ -8,12 +8,15 @@ use crate::middleware::Claims;
 use crate::models::Role;
 use crate::AppState;
 
+const MAX_PROJECT_NAME_LEN: usize = 64;
+
 #[derive(Deserialize)]
 pub struct CreateProjectPayload {
     pub name: String,
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectResponse {
     pub id: Uuid,
     pub name: String,
@@ -28,10 +31,15 @@ pub async fn create_project(
     claims: Claims,
     Json(payload): Json<CreateProjectPayload>,
 ) -> Result<(StatusCode, Json<ProjectResponse>), (StatusCode, String)> {
+    let name = payload.name.trim().to_string();
+    if name.is_empty() || name.len() > MAX_PROJECT_NAME_LEN {
+        return Err((StatusCode::BAD_REQUEST, format!("Project name must be 1-{} characters", MAX_PROJECT_NAME_LEN)));
+    }
+
     let project = sqlx::query_as::<_, crate::models::Project>(
         "INSERT INTO projects (name, owner_id) VALUES ($1, $2) RETURNING *"
     )
-    .bind(&payload.name)
+    .bind(&name)
     .bind(claims.sub)
     .fetch_one(&state.db)
     .await

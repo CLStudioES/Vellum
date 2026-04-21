@@ -6,6 +6,10 @@ use serde::{Deserialize, Serialize};
 use crate::middleware::issue_token;
 use crate::AppState;
 
+const MAX_USERNAME_LEN: usize = 32;
+const MAX_PASSWORD_LEN: usize = 128;
+const MIN_PASSWORD_LEN: usize = 8;
+
 #[derive(Deserialize)]
 pub struct AuthPayload {
     pub username: String,
@@ -13,31 +17,45 @@ pub struct AuthPayload {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AuthResponse {
     pub token: String,
     pub user_id: String,
     pub username: String,
 }
 
+fn validate_auth_input(payload: &AuthPayload) -> Result<(), (StatusCode, String)> {
+    let username = payload.username.trim();
+    if username.is_empty() || username.len() > MAX_USERNAME_LEN {
+        return Err((StatusCode::BAD_REQUEST, format!("Username must be 1-{} characters", MAX_USERNAME_LEN)));
+    }
+    if !username.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        return Err((StatusCode::BAD_REQUEST, "Username can only contain letters, numbers, hyphens, and underscores".into()));
+    }
+    if payload.password.len() < MIN_PASSWORD_LEN || payload.password.len() > MAX_PASSWORD_LEN {
+        return Err((StatusCode::BAD_REQUEST, format!("Password must be {}-{} characters", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)));
+    }
+    Ok(())
+}
+
 pub async fn register(
     State(state): State<AppState>,
     Json(payload): Json<AuthPayload>,
 ) -> Result<Json<AuthResponse>, (StatusCode, String)> {
-    if payload.username.trim().is_empty() || payload.password.len() < 8 {
-        return Err((StatusCode::BAD_REQUEST, "Username required, password min 8 chars".into()));
-    }
+    validate_auth_input(&payload)?;
 
+    let username = payload.username.trim().to_lowercase();
     let password_hash = hash_password(&payload.password)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
 
     let user = sqlx::query_as::<_, crate::models::User>(
         "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING *"
     )
-    .bind(&payload.username)
+    .bind(&username)
     .bind(&password_hash)
     .fetch_one(&state.db)
     .await
-    .map_err(|_| (StatusCode::CONFLICT, "Username already taken".into()))?;
+    .map_err(|_| (StatusCode::CONFLICT, "Username unavailable".into()))?;
 
     let token = issue_token(&state.jwt_secret.0, user.id, &user.username)
         .map_err(|s| (s, "Token generation failed".into()))?;
@@ -53,10 +71,14 @@ pub async fn login(
     State(state): State<AppState>,
     Json(payload): Json<AuthPayload>,
 ) -> Result<Json<AuthResponse>, (StatusCode, String)> {
+    validate_auth_input(&payload)?;
+
+    let username = payload.username.trim().to_lowercase();
+
     let user = sqlx::query_as::<_, crate::models::User>(
         "SELECT * FROM users WHERE username = $1"
     )
-    .bind(&payload.username)
+    .bind(&username)
     .fetch_optional(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?

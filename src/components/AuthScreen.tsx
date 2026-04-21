@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-
-interface SessionInfo {
-  userId: string;
-  username: string;
-}
+import type { SessionInfo } from "../types";
 
 interface AuthScreenProps {
   onAuthenticated: (session: SessionInfo) => void;
@@ -56,7 +52,7 @@ export default function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
         <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
           <h2 className="text-xs font-mono uppercase tracking-[0.3em] text-slate-500">
-            {mode === "login" ? "Unlock" : "Create Identity"}
+            {mode === "login" ? "Sign In" : "Create Account"}
           </h2>
 
           <input
@@ -70,7 +66,7 @@ export default function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
           <input
             type="password"
-            placeholder="Master password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 font-mono text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
@@ -79,7 +75,7 @@ export default function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           {mode === "register" && (
             <input
               type="password"
-              placeholder="Confirm master password"
+              placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 font-mono text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
@@ -97,7 +93,7 @@ export default function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             disabled={isLoading || !username || !password}
             className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-lg font-medium transition-all active:scale-[0.98] text-sm"
           >
-            {isLoading ? "Working..." : mode === "login" ? "Unlock Vault" : "Create & Unlock"}
+            {isLoading ? "Connecting..." : mode === "login" ? "Sign In" : "Create Account"}
           </button>
 
           <button
@@ -105,16 +101,9 @@ export default function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             onClick={switchMode}
             className="w-full text-xs font-mono text-slate-600 hover:text-slate-400 transition-colors py-1"
           >
-            {mode === "login" ? "No identity yet? Create one" : "Already registered? Unlock"}
+            {mode === "login" ? "No account yet? Create one" : "Already have an account? Sign in"}
           </button>
         </form>
-
-        {mode === "register" && (
-          <p className="mt-4 text-[10px] font-mono text-slate-700 text-center leading-relaxed px-4">
-            Your master password derives the encryption key for your vault.
-            It is never stored. If you lose it, your data cannot be recovered.
-          </p>
-        )}
       </div>
     </div>
   );

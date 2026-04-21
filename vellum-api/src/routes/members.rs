@@ -15,6 +15,7 @@ pub struct InvitePayload {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MemberResponse {
     pub user_id: Uuid,
     pub username: String,
@@ -33,10 +34,15 @@ pub async fn invite_member(
         return Err((StatusCode::BAD_REQUEST, "Cannot invite as owner".into()));
     }
 
+    let username = payload.username.trim().to_lowercase();
+    if username.is_empty() || username.len() > 32 {
+        return Err((StatusCode::BAD_REQUEST, "Invalid username".into()));
+    }
+
     let target_user = sqlx::query_as::<_, crate::models::User>(
         "SELECT * FROM users WHERE username = $1"
     )
-    .bind(&payload.username)
+    .bind(&username)
     .fetch_optional(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?

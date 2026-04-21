@@ -2,11 +2,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import AuthScreen from "./components/AuthScreen";
 import Dashboard from "./components/Dashboard";
-
-interface SessionInfo {
-  userId: string;
-  username: string;
-}
+import type { SessionInfo } from "./types";
 
 function App() {
   const [session, setSession] = useState<SessionInfo | null>(null);

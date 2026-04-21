@@ -8,7 +8,12 @@ use crate::middleware::Claims;
 use crate::models::Role;
 use crate::AppState;
 
+const MAX_ENTRIES_PER_REQUEST: usize = 500;
+const MAX_KEY_LEN: usize = 256;
+const MAX_VALUE_LEN: usize = 65_536;
+
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EntryPayload {
     pub env_file: String,
     pub key: String,
@@ -17,6 +22,7 @@ pub struct EntryPayload {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EntryResponse {
     pub id: Uuid,
     pub env_file: String,
@@ -31,6 +37,15 @@ pub async fn upsert_entries(
     Path(project_id): Path<Uuid>,
     Json(entries): Json<Vec<EntryPayload>>,
 ) -> Result<StatusCode, (StatusCode, String)> {
+    if entries.len() > MAX_ENTRIES_PER_REQUEST {
+        return Err((StatusCode::BAD_REQUEST, format!("Max {} entries per request", MAX_ENTRIES_PER_REQUEST)));
+    }
+    for entry in &entries {
+        if entry.key.len() > MAX_KEY_LEN || entry.encrypted_value.len() > MAX_VALUE_LEN || entry.env_file.len() > MAX_KEY_LEN {
+            return Err((StatusCode::BAD_REQUEST, "Entry field exceeds max length".into()));
+        }
+    }
+
     let role = get_role(&state, project_id, claims.sub).await?;
     if role == Role::Viewer {
         return Err((StatusCode::FORBIDDEN, "Viewers cannot modify entries".into()));

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
@@ -12,7 +12,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct Project {
     pub id: Uuid,
     pub name: String,
@@ -21,21 +21,16 @@ pub struct Project {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "lowercase")]
 pub enum Role {
-    #[serde(rename = "owner")]
-    #[sqlx(rename = "owner")]
-    Owner,
-    #[serde(rename = "editor")]
-    #[sqlx(rename = "editor")]
-    Editor,
-    #[serde(rename = "viewer")]
-    #[sqlx(rename = "viewer")]
-    Viewer,
+    #[serde(rename = "owner")]  #[sqlx(rename = "owner")]  Owner,
+    #[serde(rename = "editor")] #[sqlx(rename = "editor")] Editor,
+    #[serde(rename = "viewer")] #[sqlx(rename = "viewer")] Viewer,
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow)]
+#[allow(dead_code)]
 pub struct ProjectMember {
     pub project_id: Uuid,
     pub user_id: Uuid,
@@ -43,7 +38,8 @@ pub struct ProjectMember {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow)]
+#[allow(dead_code)]
 pub struct EnvEntry {
     pub id: Uuid,
     pub project_id: Uuid,
@@ -55,7 +51,7 @@ pub struct EnvEntry {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, FromRow)]
+#[derive(FromRow)]
 pub struct ProjectWithRole {
     pub id: Uuid,
     pub name: String,
@@ -65,7 +61,7 @@ pub struct ProjectWithRole {
     pub role: Role,
 }
 
-#[derive(Debug, FromRow)]
+#[derive(FromRow)]
 pub struct MemberRow {
     pub user_id: Uuid,
     pub username: String,
