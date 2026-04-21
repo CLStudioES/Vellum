@@ -32,3 +32,5 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+
+vellum-api/target
